@@ -18,7 +18,7 @@ if st.session_state.logged_in:
 
 # 🔐 If not logged in, show login page
 if not st.session_state.logged_in:
-    login.show_login_page()
+    login.show_login_signup_page()
 
 else:
     # 🟨 Sidebar Help Section

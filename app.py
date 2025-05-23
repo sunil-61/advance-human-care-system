@@ -10,7 +10,7 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    login.show_login_page()
+    login.show_login_signup_page()
 else:
     # 🟨 Sidebar Help Section
     with st.sidebar:

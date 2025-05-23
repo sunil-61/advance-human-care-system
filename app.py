@@ -30,12 +30,12 @@ if st.button("🔍 Predict"):
         st.success("✅ The person is unlikely to have Diabetes.")
 
 with st.sidebar:
-    st.header("ℹ️ About")
-    st.markdown("""
-    This is a **Diabetes Prediction App** built using **Streamlit** and a **Random Forest Classifier**.
+    st.header("❓ Help")
+    if st.button("View Help"):
+        st.info("""
+        - This app predicts diabetes based on medical input data.
+        - Enter values for each field and click **Predict**.
+        - Model used: Random Forest Classifier.
+        - Dataset: PIMA Indian Diabetes Dataset.
+        """)
 
-    - 🔍 Input medical data
-    - 📊 Predict diabetes risk
-    - 💾 Model trained on PIMA Indian Diabetes Dataset
-    - 🔗 [GitHub Repo](https://github.com/your-username/your-repo-name)
-    """)

@@ -6,7 +6,7 @@ This is a **Machine Learning-powered web app** built with **Streamlit** that pre
 
 ## 🚀 Live Demo
 
-👉 [Click here to try the app](https://diabetes-prediction-project-sunil-61.streamlit.app)
+👉 [Click here to try the app](https://diabetes-prediction-project-hitbebqnbdzpdlhbcfhmct.streamlit.app/)
 
 ---
 

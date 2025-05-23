@@ -6,7 +6,7 @@ import os
 import hashlib
 import re
 
-# 🔐 Safe database path for cloud deployment
+# ✅ Cloud-safe database path
 DB_PATH = '/tmp/users.db'
 
 def hash_password(password):

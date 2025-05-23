@@ -1,16 +1,18 @@
+# app.py
+
 import streamlit as st
 import numpy as np
 import pickle
 import login
 
-# Session initialization
+# 🔐 Login check
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
     login.show_login_page()
 else:
-    # 🟨 Sidebar Help Section (Correct Indentation)
+    # 🟨 Sidebar Help Section
     with st.sidebar:
         st.header("❓ Help")
         if st.button("View Help"):

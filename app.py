@@ -7,17 +7,6 @@ model = pickle.load(open('diabetes_model.pkl', 'rb'))
 
 st.title("🧠 Diabetes Prediction App")
 
-with st.sidebar:
-    st.header("ℹ️ About")
-    st.markdown("""
-    This is a **Diabetes Prediction App** built using **Streamlit** and a **Random Forest Classifier**.
-
-    - 🔍 Input medical data
-    - 📊 Predict diabetes risk
-    - 💾 Model trained on PIMA Indian Diabetes Dataset
-    - 🔗 [GitHub Repo](https://github.com/your-username/your-repo-name)
-    """)
-
 
 # Input fields
 pregnancies = st.number_input("Pregnancies", 0, 20)
@@ -39,3 +28,14 @@ if st.button("🔍 Predict"):
         st.error("❌ The person is likely to have Diabetes.")
     else:
         st.success("✅ The person is unlikely to have Diabetes.")
+
+with st.sidebar:
+    st.header("ℹ️ About")
+    st.markdown("""
+    This is a **Diabetes Prediction App** built using **Streamlit** and a **Random Forest Classifier**.
+
+    - 🔍 Input medical data
+    - 📊 Predict diabetes risk
+    - 💾 Model trained on PIMA Indian Diabetes Dataset
+    - 🔗 [GitHub Repo](https://github.com/your-username/your-repo-name)
+    """)

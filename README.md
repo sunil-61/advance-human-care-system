@@ -8,9 +8,6 @@ This is a **Machine Learning-powered web app** built with **Streamlit** that pre
 
 👉 [Click here to try the app](https://diabetes-prediction-project-sunil-61.streamlit.app)
 
-
-_(Replace with your actual link above)_
-
 ---
 
 ## 📊 Features
@@ -31,10 +28,3 @@ _(Replace with your actual link above)_
   - `numpy`
 
 ---
-
-## 🛠 How to Run Locally
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/sunil-61/diabetes-prediction-project.git
-   cd diabetes-prediction-project

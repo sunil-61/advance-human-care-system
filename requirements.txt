@@ -2,7 +2,5 @@ streamlit
 pandas
 numpy
 scikit-learn
-pickle
 sklearn.model_selection
-sklearn.ensemble 
-
+sklearn.ensemble

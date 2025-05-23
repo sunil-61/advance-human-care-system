@@ -3,7 +3,6 @@ import numpy as np
 import pickle
 import login
 
-
 # Session initialization
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -11,17 +10,18 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login.show_login_page()
 else:
-    
+    # 🟨 Sidebar Help Section (Correct Indentation)
     with st.sidebar:
-    st.header("❓ Help")
-    if st.button("View Help"):
-        st.info("""
-        - This app predicts diabetes based on medical input data.
-        - Enter values for each field and click **Predict**.
-        - Model used: Random Forest Classifier.
-        - Dataset: PIMA Indian Diabetes Dataset.
-        """)
-    # The rest of your prediction app starts here
+        st.header("❓ Help")
+        if st.button("View Help"):
+            st.info("""
+            - This app predicts diabetes based on medical input data.
+            - Enter values for each field and click **Predict**.
+            - Model used: Random Forest Classifier.
+            - Dataset: PIMA Indian Diabetes Dataset.
+            """)
+
+    # 🧠 Diabetes Prediction App
     st.title("🧠 Diabetes Prediction App")
 
     # Load trained model
@@ -46,5 +46,4 @@ else:
             st.error("❌ The person is likely to have Diabetes.")
         else:
             st.success("✅ The person is unlikely to have Diabetes.")
-
 

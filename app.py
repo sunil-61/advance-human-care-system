@@ -1,19 +1,27 @@
+# app.py
+
 import streamlit as st
 import numpy as np
 import pickle
-import login  # Make sure login.py is in the same directory
+import login  # your login.py file
 
 # Session initialization
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# If not logged in, show login/signup page
+# 🚪 Logout button (only when logged in)
+if st.session_state.logged_in:
+    with st.sidebar:
+        if st.button("🚪 Logout"):
+            st.session_state.logged_in = False
+            st.experimental_rerun()
+
+# 🔐 If not logged in, show login page
 if not st.session_state.logged_in:
     login.show_login_page()
 
-# If logged in, show prediction interface
 else:
-    # 🟨 Sidebar: Help + Logout
+    # 🟨 Sidebar Help Section
     with st.sidebar:
         st.header("❓ Help")
         if st.button("View Help"):
@@ -23,11 +31,6 @@ else:
             - Model used: Random Forest Classifier.
             - Dataset: PIMA Indian Diabetes Dataset.
             """)
-
-        # 🚪 Logout Button
-        if st.button("🚪 Logout"):
-            st.session_state.logged_in = False
-            st.experimental_rerun()
 
     # 🧠 Diabetes Prediction App
     st.title("🧠 Diabetes Prediction App")

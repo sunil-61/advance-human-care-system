@@ -2,8 +2,12 @@
 
 import streamlit as st
 import sqlite3
+import os
 import hashlib
 import re
+
+# 🔐 Safe database path for cloud deployment
+DB_PATH = '/tmp/users.db'
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -15,7 +19,7 @@ def valid_password(password):
     return len(password) >= 8
 
 def create_users_table():
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY,
@@ -25,7 +29,7 @@ def create_users_table():
     conn.close()
 
 def add_user(username, password):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     hashed = hash_password(password)
     c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed))
@@ -33,7 +37,7 @@ def add_user(username, password):
     conn.close()
 
 def validate_user(username, password):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     hashed = hash_password(password)
     c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed))

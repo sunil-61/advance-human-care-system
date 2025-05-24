@@ -3,7 +3,9 @@ import sqlite3
 import hashlib
 import re
 
-DB_PATH = '/tmp/users.db'
+DB_PATH = '/tmp/users.db'  # Safe path for cloud deployment
+
+# ---------------------- Utility Functions ----------------------
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -20,15 +22,19 @@ def valid_email(email):
 def valid_mobile(mobile):
     return re.match(r"^[6-9]\d{9}$", mobile)
 
+# ---------------------- Database Operations ----------------------
+
 def create_users_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        username TEXT PRIMARY KEY,
-        password TEXT,
-        mobile TEXT,
-        email TEXT
-    )''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT,
+            mobile TEXT,
+            email TEXT
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -57,6 +63,8 @@ def validate_user(username, password):
     result = c.fetchone()
     conn.close()
     return result
+
+# ---------------------- UI Logic ----------------------
 
 def show_login_signup_page():
     st.title("🔐 Secure Login System")
@@ -100,5 +108,6 @@ def show_login_signup_page():
                 add_user(new_user, new_pass, mobile, email)
                 st.success("Account created successfully!")
 
-# Run the page
-show_login_signup_page()
+# Don't call show_login_signup_page() here directly
+# It should be triggered from app.py based on session_state
+

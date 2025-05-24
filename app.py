@@ -5,20 +5,29 @@ import login
 import sqlite3
 import os
 from config import DB_PATH
+from storage import create_prediction_table
+from storage import save_prediction
+from storage import get_user_predictions, delete_prediction
+import services.diabetes as diabetes
+import services.stress as stress
 
 
+create_prediction_table()  # Table automatically create ho jayegi agar nahi bani
 login.create_users_table() 
 
-
 MODEL_PATH = "diabetes_model.pkl"
+model = pickle.load(open(MODEL_PATH, "rb"))
 
 st.set_page_config(layout="wide")
+
 
 # Session state init
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "show_menu" not in st.session_state:
     st.session_state.show_menu = False
+if "selected_service" not in st.session_state:
+    st.session_state.selected_service = None  # No service selected by default
 
 # ---------------------- Helpers ----------------------
 
@@ -65,16 +74,40 @@ if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
     # Top Bar with Home Button
-    col1, col2 = st.columns([1, 9])
+    col1, col2, col3 = st.columns([1, 1, 9])
     with col1:
         if st.button("🏠", help="Open Menu"):
             st.session_state.show_menu = not st.session_state.show_menu
+            st.session_state.selected_service = None
     with col2:
-        st.title("🧠 Diabetes Prediction App")
+        if st.button("🏃🚪", help="Log Out"):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.rerun()
+    with col3:
+        service_selected = st.selectbox("📌 Services", ["Select Service", "Diabetes Prediction", "Stress Monitor"])
 
-    if st.session_state.show_menu:
+        if service_selected != "Select Service":
+            st.session_state.selected_service = service_selected
+            st.session_state.show_menu = False
+        else:
+            st.session_state.selected_service = None  
+
+    services = {
+        "Diabetes Prediction": diabetes.show_diabetes_prediction,
+        "Stress Monitor": stress.show_stress_monitor
+    }
+
+    if st.session_state.selected_service == "Diabetes Prediction":
+        services["Diabetes Prediction"](model, st.session_state.username)
+    elif st.session_state.selected_service == "Stress Monitor":
+        services["Stress Monitor"](st.session_state.username)
+
+
+
+    elif st.session_state.show_menu:
         st.markdown("---")
-        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Logout", "Help", "Contact Us"], index=0)
+        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Help", "Contact Us"], index=0)
 
         if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
@@ -116,11 +149,6 @@ else:
                 else:
                     st.error(message)
 
-        elif menu_option == "Logout":
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.rerun()
-
         elif menu_option == "Help":
             st.info("""
             ### ❓ Help
@@ -137,24 +165,4 @@ else:
             - **Phone**: +91 869-062-5461
             """)
 
-    st.markdown("---")
-    st.subheader("Enter Medical Information for Prediction")
-    model = pickle.load(open(MODEL_PATH, "rb"))
-
-    pregnancies = st.number_input("Pregnancies", 0, 20)
-    glucose = st.number_input("Glucose Level", 0, 300)
-    blood_pressure = st.number_input("Blood Pressure", 0, 200)
-    skin_thickness = st.number_input("Skin Thickness", 0, 100)
-    insulin = st.number_input("Insulin", 0, 900)
-    bmi = st.number_input("BMI", 0.0, 70.0)
-    dpf = st.number_input("Diabetes Pedigree Function", 0.0, 3.0)
-    age = st.number_input("Age", 1, 120)
-
-    if st.button("🔍 Predict"):
-        input_data = np.array([[pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]])
-        prediction = model.predict(input_data)[0]
-        if prediction == 1:
-            st.error("❌ Likely to have Diabetes")
-        else:
-            st.success("✅ Unlikely to have Diabetes")
-
+   

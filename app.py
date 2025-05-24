@@ -132,9 +132,9 @@ else:
         elif menu_option == "Contact Us":
             st.info("""
             ### 📞 Contact Us
-            - **Developer**: Sunil
-            - **Email**: contact@example.com
-            - **Phone**: +91-9876543210
+            - **Developer**: Sunil Jat
+            - **Email**: technical.programmer.sunil@gmail.com
+            - **Phone**: +91 869-062-5461
             """)
 
     st.markdown("---")

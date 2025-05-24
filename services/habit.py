@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 from storage import save_prediction
 
-def show_habit_moniter(username):
+def show_habit_monitor(username):
     st.title("🧠 AI Habit Tracker")
     st.write("Track your daily habits and get smart suggestions to improve your lifestyle.")
 

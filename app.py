@@ -7,9 +7,12 @@ import os
 
 DB_PATH = '/tmp/users.db'
 
-# Session State Init
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+# Session State Init
+if "show_menu" not in st.session_state:
+    st.session_state.show_menu = False
 
 def get_user_data(username):
     conn = sqlite3.connect(DB_PATH)

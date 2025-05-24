@@ -6,13 +6,17 @@ import sqlite3
 import os
 
 DB_PATH = '/tmp/users.db'
+MODEL_PATH = "diabetes_model.pkl"
 
+st.set_page_config(layout="wide")
 
+# Session state init
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-# Session State Init
 if "show_menu" not in st.session_state:
     st.session_state.show_menu = False
+
+# ---------------------- Helpers ----------------------
 
 def get_user_data(username):
     conn = sqlite3.connect(DB_PATH)
@@ -31,6 +35,12 @@ def update_user_profile(old_username, new_username, mobile, email):
               (new_username, mobile, email, old_username))
     conn.commit()
     conn.close()
+    # Rename profile photo if username changed
+    profile_dir = "profile_photos"
+    old_photo_path = os.path.join(profile_dir, f"{old_username}.png")
+    new_photo_path = os.path.join(profile_dir, f"{new_username}.png")
+    if old_username != new_username and os.path.exists(old_photo_path):
+        os.rename(old_photo_path, new_photo_path)
     st.session_state.username = new_username
     return True, "Profile updated successfully!"
 
@@ -45,33 +55,32 @@ def change_password(username, old_pass, new_pass):
     conn.close()
     return True, "Password changed successfully!"
 
-# UI Logic
+# ---------------------- Main UI ----------------------
+
 if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
-    st.set_page_config(layout="wide")
+    # Top Bar with Home Button
     col1, col2 = st.columns([1, 9])
     with col1:
-        if st.button("🏠", help="Home Menu"):
-            st.session_state.show_menu = not st.session_state.get("show_menu", False)
-
+        if st.button("🏠", help="Open Menu"):
+            st.session_state.show_menu = not st.session_state.show_menu
     with col2:
         st.title("🧠 Diabetes Prediction App")
 
-    # Show Menu
-    if st.session_state.get("show_menu", False):
-        st.subheader("Menu")
-        menu_option = st.radio("", ["View Profile", "Change Password", "Logout", "Help", "Contact Us"], index=0)
+    if st.session_state.show_menu:
+        st.markdown("---")
+        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Logout", "Help", "Contact Us"], index=0)
 
-            if menu_option == "View Profile":
+        if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
             user_data = get_user_data(st.session_state.username)
             new_username = st.text_input("Username", value=user_data[0])
             mobile = st.text_input("Mobile Number", value=user_data[1])
             email = st.text_input("Email ID", value=user_data[2])
 
-            # Profile Photo Upload
-            profile_dir = f"profile_photos"
+            # Profile Photo Upload & Display
+            profile_dir = "profile_photos"
             os.makedirs(profile_dir, exist_ok=True)
             photo_path = os.path.join(profile_dir, f"{st.session_state.username}.png")
 
@@ -81,21 +90,15 @@ else:
                     f.write(uploaded_photo.read())
                 st.success("Profile photo updated successfully!")
 
-            # Display Profile Photo if Exists
             if os.path.exists(photo_path):
                 st.image(photo_path, width=150, caption="Profile Photo")
 
             if st.button("Update Profile"):
                 success, message = update_user_profile(st.session_state.username, new_username, mobile, email)
                 if success:
-                    # Rename photo if username changed
-                    if new_username != st.session_state.username:
-                        new_photo_path = os.path.join(profile_dir, f"{new_username}.png")
-                        os.rename(photo_path, new_photo_path)
                     st.success(message)
                 else:
                     st.error(message)
-
 
         elif menu_option == "Change Password":
             st.subheader("🔒 Change Password")
@@ -117,9 +120,9 @@ else:
         elif menu_option == "Help":
             st.info("""
             ### ❓ Help
-            - This app uses a Random Forest model to predict diabetes.
-            - Input medical data and click "Predict".
-            - Use Home menu to manage your account or logout.
+            - This app uses a trained Random Forest model to predict diabetes.
+            - Fill in the medical information below and click "Predict".
+            - Use 🏠 menu to manage your profile and account.
             """)
 
         elif menu_option == "Contact Us":
@@ -130,9 +133,9 @@ else:
             - **Phone**: +91-9876543210
             """)
 
-    # Prediction UI
-    st.subheader("Enter Medical Information")
-    model = pickle.load(open("diabetes_model.pkl", "rb"))
+    st.markdown("---")
+    st.subheader("Enter Medical Information for Prediction")
+    model = pickle.load(open(MODEL_PATH, "rb"))
 
     pregnancies = st.number_input("Pregnancies", 0, 20)
     glucose = st.number_input("Glucose Level", 0, 300)
@@ -146,7 +149,6 @@ else:
     if st.button("🔍 Predict"):
         input_data = np.array([[pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]])
         prediction = model.predict(input_data)[0]
-
         if prediction == 1:
             st.error("❌ Likely to have Diabetes")
         else:

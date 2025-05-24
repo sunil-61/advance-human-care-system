@@ -10,6 +10,7 @@ from storage import save_prediction
 from storage import get_user_predictions, delete_prediction
 import services.diabetes as diabetes
 import services.stress as stress
+import services.habit as habit
 
 
 create_prediction_table()  # Table automatically create ho jayegi agar nahi bani
@@ -85,7 +86,7 @@ else:
             st.session_state.username = ""
             st.rerun()
     with col3:
-        service_selected = st.selectbox("📌 Services", ["Select Service", "Diabetes Prediction", "Stress Monitor"])
+        service_selected = st.selectbox("📌 Services", ["Select Service", "Diabetes Prediction", "Stress Monitor", "AI Habit Tracker"])
 
         if service_selected != "Select Service":
             st.session_state.selected_service = service_selected
@@ -95,13 +96,16 @@ else:
 
     services = {
         "Diabetes Prediction": diabetes.show_diabetes_prediction,
-        "Stress Monitor": stress.show_stress_monitor
+        "Stress Monitor": stress.show_stress_monitor,
+        "AI Habit Tracker": habit.show_habit_monitor
     }
 
     if st.session_state.selected_service == "Diabetes Prediction":
         services["Diabetes Prediction"](model, st.session_state.username)
     elif st.session_state.selected_service == "Stress Monitor":
-        services["Stress Monitor"](st.session_state.username)
+        services["Stress Monitor"](st.session_state.username) 
+    elif st.session_state.selected_service == "AI Hebit Tracker":
+        services["AI Habit Tracker"](st.session_state.username)
 
 
 

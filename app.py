@@ -63,19 +63,39 @@ else:
         st.subheader("Menu")
         menu_option = st.radio("", ["View Profile", "Change Password", "Logout", "Help", "Contact Us"], index=0)
 
-        if menu_option == "View Profile":
+            if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
             user_data = get_user_data(st.session_state.username)
             new_username = st.text_input("Username", value=user_data[0])
             mobile = st.text_input("Mobile Number", value=user_data[1])
             email = st.text_input("Email ID", value=user_data[2])
 
+            # Profile Photo Upload
+            profile_dir = f"profile_photos"
+            os.makedirs(profile_dir, exist_ok=True)
+            photo_path = os.path.join(profile_dir, f"{st.session_state.username}.png")
+
+            uploaded_photo = st.file_uploader("Upload Profile Photo", type=["png", "jpg", "jpeg"])
+            if uploaded_photo is not None:
+                with open(photo_path, "wb") as f:
+                    f.write(uploaded_photo.read())
+                st.success("Profile photo updated successfully!")
+
+            # Display Profile Photo if Exists
+            if os.path.exists(photo_path):
+                st.image(photo_path, width=150, caption="Profile Photo")
+
             if st.button("Update Profile"):
                 success, message = update_user_profile(st.session_state.username, new_username, mobile, email)
                 if success:
+                    # Rename photo if username changed
+                    if new_username != st.session_state.username:
+                        new_photo_path = os.path.join(profile_dir, f"{new_username}.png")
+                        os.rename(photo_path, new_photo_path)
                     st.success(message)
                 else:
                     st.error(message)
+
 
         elif menu_option == "Change Password":
             st.subheader("🔒 Change Password")

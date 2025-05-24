@@ -2,8 +2,8 @@ import streamlit as st
 import sqlite3
 import hashlib
 import re
+from config import DB_PATH
 
-DB_PATH = '/tmp/users.db'  # Safe path for cloud deployment
 
 # ---------------------- Utility Functions ----------------------
 

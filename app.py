@@ -4,8 +4,12 @@ import pickle
 import login
 import sqlite3
 import os
+from config import DB_PATH
 
-DB_PATH = '/tmp/users.db'
+
+login.create_users_table() 
+
+
 MODEL_PATH = "diabetes_model.pkl"
 
 st.set_page_config(layout="wide")

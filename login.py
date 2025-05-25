@@ -74,10 +74,10 @@ def show_login_signup_page():
 
     if page == "Login":
         st.subheader("Login")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type='password')
+        username = st.text_input("Username", key="login_user")
+        password = st.text_input("Password", type='password', key="login_pass")
 
-        if st.button("Login"):
+        if st.button("Login", key="login_button"):
             if validate_user(username, password):
                 st.session_state.logged_in = True
                 st.session_state.username = username
@@ -89,12 +89,12 @@ def show_login_signup_page():
     elif page == "Sign Up":
         st.subheader("Create New Account")
 
-        new_user = st.text_input("Username")
-        new_pass = st.text_input("Password", type='password')
-        mobile = st.text_input("Mobile Number")
-        email = st.text_input("Email ID")
+        new_user = st.text_input("Username", key="signup_user")
+        new_pass = st.text_input("Password", type='password', key="signup_pass")
+        mobile = st.text_input("Mobile Number", key="signup_mobile")
+        email = st.text_input("Email ID",key="signup_email")
 
-        if st.button("Create Account"):
+        if st.button("Create Account", key="signup_button"):
             if not valid_username(new_user):
                 st.warning("Username must contain only letters and numbers.")
             elif user_exists(new_user):

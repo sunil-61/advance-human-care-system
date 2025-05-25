@@ -5,25 +5,23 @@ import login
 import sqlite3
 import os
 from config import DB_PATH
-from storage import create_prediction_table
-from storage import save_prediction
-from storage import get_user_predictions, delete_prediction
+from storage import create_prediction_table, save_prediction, get_user_predictions, delete_prediction
 import services.diabetes as diabetes
 import services.stress as stress
 import services.habit as habit
 
+# Create required tables
+create_prediction_table()
+login.create_user_table()
 
-create_prediction_table()  # Table automatically create ho jayegi agar nahi bani
-login.create_users_table() 
-
+# Load diabetes model
 MODEL_PATH = "diabetes_model.pkl"
 model = pickle.load(open(MODEL_PATH, "rb"))
 
+# Streamlit settings
 st.set_page_config(layout="wide")
 
-
-
-# Session state init
+# ---------------- Session State Initialization ----------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -31,9 +29,9 @@ if "username" not in st.session_state:
 if "show_menu" not in st.session_state:
     st.session_state.show_menu = False
 if "selected_service" not in st.session_state:
-    st.session_state.selected_service = None  # No service selected by default
+    st.session_state.selected_service = None
 
-# ---------------------- Helpers ----------------------
+# ------------------- Helper Functions -------------------------
 
 def get_user_data(username):
     conn = sqlite3.connect(DB_PATH)
@@ -72,12 +70,13 @@ def change_password(username, old_pass, new_pass):
     conn.close()
     return True, "Password changed successfully!"
 
-# ---------------------- Main UI ----------------------
+# --------------------- Main UI -------------------------------
 
 if not st.session_state.logged_in:
     login.show_login_signup_page()
+
 else:
-    # Top Bar with Home Button
+    # Top Menu
     col1, col2, col3 = st.columns([1, 1, 9])
     with col1:
         if st.button("🏠", help="Open Menu"):
@@ -90,31 +89,29 @@ else:
             st.rerun()
     with col3:
         service_selected = st.selectbox("📌 Services", ["Select Service", "Diabetes Prediction", "Stress Monitor", "AI Habit Tracker"])
-
         if service_selected != "Select Service":
             st.session_state.selected_service = service_selected
             st.session_state.show_menu = False
         else:
-            st.session_state.selected_service = None  
+            st.session_state.selected_service = None
 
+    # Load selected service
     services = {
         "Diabetes Prediction": diabetes.show_diabetes_prediction,
         "Stress Monitor": stress.show_stress_monitor,
         "AI Habit Tracker": habit.show_habit_monitor
     }
 
-    if st.session_state.selected_service == "Diabetes Prediction":
-        services["Diabetes Prediction"](model,st.session_state.username)
-    elif st.session_state.selected_service == "Stress Monitor":
-        services["Stress Monitor"](st.session_state.username) 
-    elif st.session_state.selected_service == "AI Habit Tracker":
-        services["AI Habit Tracker"](st.session_state.username)
+    if st.session_state.selected_service in services:
+        if st.session_state.selected_service == "Diabetes Prediction":
+            services["Diabetes Prediction"](model, st.session_state.username)
+        else:
+            services[st.session_state.selected_service](st.session_state.username)
 
-
-
+    # Show home menu
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
-        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Help", "Contact Us"], index=0)
+        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"], index=0)
 
         if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
@@ -123,7 +120,7 @@ else:
             mobile = st.text_input("Mobile Number", value=user_data[1])
             email = st.text_input("Email ID", value=user_data[2])
 
-            # Profile Photo Upload & Display
+            # Profile photo upload
             profile_dir = "profile_photos"
             os.makedirs(profile_dir, exist_ok=True)
             photo_path = os.path.join(profile_dir, f"{st.session_state.username}.png")
@@ -156,20 +153,35 @@ else:
                 else:
                     st.error(message)
 
+        elif menu_option == "Prediction History":
+            st.subheader("📜 Prediction History")
+            history = get_user_predictions(st.session_state.username)
+            if history:
+                for record in history:
+                    id, service, date, inputs, result = record
+                    with st.expander(f"{date} - {service}"):
+                        st.markdown(f"**Inputs:** {inputs}")
+                        st.markdown(f"**Result:** {result}")
+                        if st.button("Delete", key=f"del_{id}"):
+                            delete_prediction(id)
+                            st.success("Deleted successfully.")
+                            st.rerun()
+            else:
+                st.info("No prediction history found.")
+
         elif menu_option == "Help":
             st.info("""
             ### ❓ Help
-            - This app uses a trained Random Forest model to predict diabetes.
-            - Fill in the medical information below and click "Predict".
-            - Use 🏠 menu to manage your profile and account.
+            - This app allows you to use multiple AI-powered health services.
+            - You can predict diabetes, monitor stress, and track your habits.
+            - Use the 🏠 menu to manage your profile and account settings.
             """)
 
         elif menu_option == "Contact Us":
             st.info("""
             ### 📞 Contact Us
-            - **Developer**: Sunil Jat
-            - **Email**: technical.programmer.sunil@gmail.com
+            - **Developer**: Sunil Jat  
+            - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
 
-   

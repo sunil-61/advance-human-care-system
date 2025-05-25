@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import hashlib
 import re
+import os
 from config import DB_PATH
 
 # ---------------------- Utility Functions ----------------------
@@ -23,7 +24,7 @@ def valid_mobile(mobile):
 
 # ---------------------- Database Operations ----------------------
 
-def create_users_table():
+def create_user_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''
@@ -66,44 +67,59 @@ def validate_user(username, password):
 # ---------------------- UI Logic ----------------------
 
 def show_login_signup_page():
-    st.title("🔐 Secure Login System")
-    create_users_table()
+    st.markdown("<h2 style='text-align: center;'>🏥 Welcome to the Advance Health Care System</h2>", unsafe_allow_html=True)
 
-    page = st.radio("Select Option", ["Login", "Sign Up"], horizontal=True)
+    create_user_table()
 
-    if page == "Login":
-        st.subheader("Login")
-        username = st.text_input("Username", key="login_user")
-        password = st.text_input("Password", type='password', key="login_pass")
+    if os.path.exists("loginphoto.jpeg"):
+        st.image("loginphoto.jpeg", use_container_width=True)
+    else:
+        st.warning("Image not found: loginphoto.jpeg")
 
-        if "login_triggered" not in st.session_state:
-            st.session_state.login_triggered = False
+    username = st.text_input("Username")
+    password = st.text_input("Password", type='password')
 
-        if st.button("Login", key="login_button"):
+    if 'mode' not in st.session_state:
+        st.session_state.mode = 'login'
+
+    st.write("")  # spacing
+
+    # Centered Login Button
+    col1, col2, col3 = st.columns([5.6, 2, 5])
+    with col2:
+        if st.button("Login", key="login_action"):
             if validate_user(username, password):
                 st.session_state.logged_in = True
                 st.session_state.username = username
-                st.session_state.login_triggered = True
+                st.success("Login successful!")
+                st.rerun()
             else:
                 st.error("Invalid username or password.")
 
-        if st.session_state.get("login_triggered"):
-            st.session_state.login_triggered = False  # reset trigger
-            st.rerun()
+    # Centered 'Don't have an account?'
+    col4, col5, col6 = st.columns([4.5, 2, 5])
+    with col5:
+        st.markdown("<p style='text-align: center;'>Don't have an account?</p>", unsafe_allow_html=True)
 
-    elif page == "Sign Up":
+    # Centered Sign Up button
+    col7, col8, col9 = st.columns([5.5, 2, 5])
+    with col8:
+        if st.button("Sign Up", key="signup_action"):
+            st.session_state.mode = 'signup'
+
+    # Signup form
+    if st.session_state.mode == 'signup':
         st.subheader("Create New Account")
+        new_user = st.text_input("New Username")
+        new_pass = st.text_input("New Password", type='password')
+        mobile = st.text_input("Mobile Number")
+        email = st.text_input("Email ID")
 
-        new_user = st.text_input("Username", key="signup_user")
-        new_pass = st.text_input("Password", type='password', key="signup_pass")
-        mobile = st.text_input("Mobile Number", key="signup_mobile")
-        email = st.text_input("Email ID", key="signup_email")
-
-        if st.button("Create Account", key="signup_button"):
+        if st.button("Create Account"):
             if not valid_username(new_user):
                 st.warning("Username must contain only letters and numbers.")
             elif user_exists(new_user):
-                st.warning("Username already exists. Choose another one.")
+                st.warning("Username already exists.")
             elif not valid_password(new_pass):
                 st.warning("Password must be at least 8 characters.")
             elif not valid_mobile(mobile):
@@ -112,4 +128,5 @@ def show_login_signup_page():
                 st.warning("Enter a valid email address.")
             else:
                 add_user(new_user, new_pass, mobile, email)
-                st.success("Account created successfully! You can now login.")
+                st.success("Account created successfully!")
+                st.session_state.mode = 'login'

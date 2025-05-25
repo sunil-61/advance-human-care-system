@@ -66,6 +66,7 @@ def change_password(username, old_pass, new_pass):
     return True, "Password changed successfully!"
 
 # --------------------- Main UI -------------------------------
+# --------------------- Main UI -------------------------------
 if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
@@ -170,10 +171,8 @@ else:
             - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
-        else:
-    # ... your existing logged-in UI like menu, profile, services ...
 
-    # --------------------- Bottom Complaint Box ---------------------
+    # --------------------- Bottom Complaint Box (only after login) ---------------------
     st.markdown("---")
     st.subheader("📩 Complaint Box")
     st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
@@ -188,6 +187,5 @@ else:
             conn.close()
             st.success("✅ Complaint sent successfully!")
             st.experimental_rerun()
-    
-        
+
 

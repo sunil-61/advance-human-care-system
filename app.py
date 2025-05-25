@@ -170,20 +170,24 @@ else:
             - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
+        else:
+    # ... your existing logged-in UI like menu, profile, services ...
 
-        # --------------------- Bottom Complaint Box ---------------------
-st.markdown("---")
-st.subheader("📩 Complaint Box")
-st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
-with st.form("complaint_form"):
-    complaint_text = st.text_area("Type your complaint here...")
-    send = st.form_submit_button("Send")
-    if send and complaint_text.strip():
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
-        conn.commit()
-        conn.close()
-        st.success("✅ Complaint sent successfully!")
-        st.experimental_rerun()
+    # --------------------- Bottom Complaint Box ---------------------
+    st.markdown("---")
+    st.subheader("📩 Complaint Box")
+    st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
+    with st.form("complaint_form"):
+        complaint_text = st.text_area("Type your complaint here...")
+        send = st.form_submit_button("Send")
+        if send and complaint_text.strip():
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
+            conn.commit()
+            conn.close()
+            st.success("✅ Complaint sent successfully!")
+            st.experimental_rerun()
+    
+        
 

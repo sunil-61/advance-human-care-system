@@ -22,9 +22,12 @@ model = pickle.load(open(MODEL_PATH, "rb"))
 st.set_page_config(layout="wide")
 
 
+
 # Session state init
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
 if "show_menu" not in st.session_state:
     st.session_state.show_menu = False
 if "selected_service" not in st.session_state:
@@ -109,7 +112,7 @@ else:
 
 
 
-    elif st.session_state.show_menu:
+    if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
         menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Help", "Contact Us"], index=0)
 

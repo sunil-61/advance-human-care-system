@@ -83,6 +83,7 @@ def show_login_signup_page():
                 st.session_state.logged_in = True
                 st.session_state.username = username
                 st.experimental_rerun()
+                return
             else:
                 st.error("Invalid username or password.")
 

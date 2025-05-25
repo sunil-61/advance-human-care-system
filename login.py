@@ -4,7 +4,6 @@ import hashlib
 import re
 from config import DB_PATH
 
-
 # ---------------------- Utility Functions ----------------------
 
 def hash_password(password):
@@ -77,14 +76,20 @@ def show_login_signup_page():
         username = st.text_input("Username", key="login_user")
         password = st.text_input("Password", type='password', key="login_pass")
 
+        if "login_triggered" not in st.session_state:
+            st.session_state.login_triggered = False
+
         if st.button("Login", key="login_button"):
             if validate_user(username, password):
                 st.session_state.logged_in = True
                 st.session_state.username = username
-                st.experimental_rerun()
-                return
+                st.session_state.login_triggered = True
             else:
                 st.error("Invalid username or password.")
+
+        if st.session_state.get("login_triggered"):
+            st.session_state.login_triggered = False  # reset trigger
+            st.rerun()
 
     elif page == "Sign Up":
         st.subheader("Create New Account")
@@ -92,7 +97,7 @@ def show_login_signup_page():
         new_user = st.text_input("Username", key="signup_user")
         new_pass = st.text_input("Password", type='password', key="signup_pass")
         mobile = st.text_input("Mobile Number", key="signup_mobile")
-        email = st.text_input("Email ID",key="signup_email")
+        email = st.text_input("Email ID", key="signup_email")
 
         if st.button("Create Account", key="signup_button"):
             if not valid_username(new_user):
@@ -107,8 +112,4 @@ def show_login_signup_page():
                 st.warning("Enter a valid email address.")
             else:
                 add_user(new_user, new_pass, mobile, email)
-                st.success("Account created successfully!")
-
-# Don't call show_login_signup_page() here directly
-# It should be triggered from app.py based on session_state
-
+                st.success("Account created successfully! You can now login.")

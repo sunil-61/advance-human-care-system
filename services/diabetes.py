@@ -2,6 +2,7 @@
 
 import streamlit as st
 import numpy as np
+from datetime import datetime
 from storage import save_prediction
 
 def show_diabetes_prediction(model, username):
@@ -20,7 +21,7 @@ def show_diabetes_prediction(model, username):
         input_data = np.array([[pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]])
         prediction = model.predict(input_data)[0]
         result = "Positive" if prediction == 1 else "Negative"
-        save_prediction(username, input_data.tolist(), result)
+        save_prediction(username, "Diabetes Prediction", input_data.tolist(), result, datetime.now())
 
         if prediction == 1:
             st.error("❌ High Risk of Diabetes")

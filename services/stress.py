@@ -6,7 +6,7 @@ def show_stress_monitor(model=None, username=None):
     st.title("🧠 Stress Monitor")
 
     st.markdown("### Please answer the following questions:")
-    sleep_hours = st.slider("How many hours do you sleep daily?", 0, 12, 6)
+    sleep_hours = st.slider("How many hours do you sleep daily?", 0, 18, 6)
     work_hours = st.slider("How many hours do you work daily?", 0, 16, 8)
     exercise = st.radio("Do you exercise regularly?", ["Yes", "No"])
     appetite = st.radio("How is your appetite?", ["Normal", "Low", "High"])
@@ -37,4 +37,7 @@ def show_stress_monitor(model=None, username=None):
         if username:
             input_str = f"Sleep: {sleep_hours}h, Work: {work_hours}h, Exercise: {exercise}, Appetite: {appetite}, Mood: {mood}/10"
             save_prediction(username, input_str, f"Stress: {stress_level}")
+
+        if sleep_hours > 8:
+            st.success(f"Aree yrrrr! **{sleep_hours}** to bahut jyada ho gyi neend thoda kaam bhi kr liya kr")    
 

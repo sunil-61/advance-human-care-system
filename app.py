@@ -104,7 +104,7 @@ else:
     }
 
     if st.session_state.selected_service == "Diabetes Prediction":
-        services["Diabetes Prediction"](model, st.session_state.username)
+        services["Diabetes Prediction"](model,st.session_state.username)
     elif st.session_state.selected_service == "Stress Monitor":
         services["Stress Monitor"](st.session_state.username) 
     elif st.session_state.selected_service == "AI Habit Tracker":

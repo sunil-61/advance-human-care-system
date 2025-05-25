@@ -7,7 +7,7 @@ def show_habit_monitor(model=None, username=None):
     st.title("🧠 AI Habit Tracker")
     st.write("Track your daily habits and get smart suggestions to improve your lifestyle.")
 
-    # ---- INPUT SECTION ----
+    # ---- INPUT SECTION ----f"Aree yrrrr! **{sleep_hours}** ghante to bahut jyada ho gyi neend thoda kaam bhi kr liya kr"
     st.subheader("Enter Your Daily Habits")
 
     water_intake = st.slider("How many glasses of water did you drink today?", 0, 15, 5)

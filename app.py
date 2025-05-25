@@ -11,7 +11,7 @@ from storage import create_prediction_table, save_prediction, get_user_predictio
 import services.diabetes as diabetes
 import services.stress as stress
 import services.habit as habit
-from storage import create_complaint_table
+from storage import create_complaints_table
 from login import is_admin
 
 # Ensure tables exist

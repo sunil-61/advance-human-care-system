@@ -9,8 +9,10 @@ from storage import create_prediction_table, save_prediction, get_user_predictio
 import services.diabetes as diabetes
 import services.stress as stress
 import services.habit as habit
+from storage import create_complaint_table
 
-# Create required tables
+# Ensure tables exist
+create_complaint_table()
 create_prediction_table()
 login.create_user_table()
 
@@ -22,17 +24,11 @@ model = pickle.load(open(MODEL_PATH, "rb"))
 st.set_page_config(layout="wide")
 
 # ---------------- Session State Initialization ----------------
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "show_menu" not in st.session_state:
-    st.session_state.show_menu = False
-if "selected_service" not in st.session_state:
-    st.session_state.selected_service = None
+for key in ["logged_in", "username", "show_menu", "selected_service"]:
+    if key not in st.session_state:
+        st.session_state[key] = False if key == "logged_in" else "" if key == "username" else False if key == "show_menu" else None
 
 # ------------------- Helper Functions -------------------------
-
 def get_user_data(username):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -50,7 +46,6 @@ def update_user_profile(old_username, new_username, mobile, email):
               (new_username, mobile, email, old_username))
     conn.commit()
     conn.close()
-    # Rename profile photo if username changed
     profile_dir = "profile_photos"
     old_photo_path = os.path.join(profile_dir, f"{old_username}.png")
     new_photo_path = os.path.join(profile_dir, f"{new_username}.png")
@@ -71,10 +66,8 @@ def change_password(username, old_pass, new_pass):
     return True, "Password changed successfully!"
 
 # --------------------- Main UI -------------------------------
-
 if not st.session_state.logged_in:
     login.show_login_signup_page()
-
 else:
     # Top Menu
     col1, col2, col3 = st.columns([1, 1, 9])
@@ -95,7 +88,7 @@ else:
         else:
             st.session_state.selected_service = None
 
-    # Load selected service
+    # Service Loaders
     services = {
         "Diabetes Prediction": diabetes.show_diabetes_prediction,
         "Stress Monitor": stress.show_stress_monitor,
@@ -108,7 +101,7 @@ else:
         else:
             services[st.session_state.selected_service](st.session_state.username)
 
-    # Show home menu
+    # Menu Options
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
         menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"], index=0)
@@ -136,22 +129,15 @@ else:
 
             if st.button("Update Profile"):
                 success, message = update_user_profile(st.session_state.username, new_username, mobile, email)
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
+                st.success(message) if success else st.error(message)
 
         elif menu_option == "Change Password":
             st.subheader("🔒 Change Password")
             old_pass = st.text_input("Old Password", type='password')
             new_pass = st.text_input("New Password", type='password')
-
             if st.button("Change"):
                 success, message = change_password(st.session_state.username, old_pass, new_pass)
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
+                st.success(message) if success else st.error(message)
 
         elif menu_option == "Prediction History":
             st.subheader("📜 Prediction History")
@@ -172,9 +158,9 @@ else:
         elif menu_option == "Help":
             st.info("""
             ### ❓ Help
-            - This app allows you to use multiple AI-powered health services.
-            - You can predict diabetes, monitor stress, and track your habits.
-            - Use the 🏠 menu to manage your profile and account settings.
+            - Use the top menu to select a health service.
+            - Use 🏠 to view profile, change password, see history.
+            - Your data is securely stored and private.
             """)
 
         elif menu_option == "Contact Us":
@@ -184,4 +170,20 @@ else:
             - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
+
+        # Complaint Box
+        st.markdown("---")
+        st.subheader("📩 Complaint Box")
+        st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
+        with st.form("complaint_form"):
+            complaint_text = st.text_area("Type your complaint here...")
+            send = st.form_submit_button("Send")
+            if send and complaint_text.strip():
+                conn = sqlite3.connect(DB_PATH)
+                c = conn.cursor()
+                c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
+                conn.commit()
+                conn.close()
+                st.success("✅ Complaint sent successfully!")
+                st.experimental_rerun()
 

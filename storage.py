@@ -21,6 +21,18 @@ def create_prediction_table():
     conn.commit()
     conn.close()
 
+def create_complaint_table():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS complaints (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT,
+                    complaint TEXT
+                )''')
+    conn.commit()
+    conn.close()
+
+
 def save_prediction(username, service, input_data, prediction_result, timestamp):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()

@@ -69,6 +69,27 @@ def change_password(username, old_pass, new_pass):
     conn.close()
     return True, "Password changed successfully!"
 
+# Secret admin setup (only runs once)
+def setup_admin():
+    st.markdown("## 🔐 Admin Setup")
+    secret_code = st.text_input("Enter Secret Code to Become Admin", type="password")
+    if st.button("Activate Admin Rights"):
+        if secret_code == "27591684":  # Same as your password or set new one
+            conn = sqlite3.connect("users.db")
+            c = conn.cursor()
+            c.execute("UPDATE users SET is_admin = 1 WHERE username = ?", (st.session_state.username,))
+            conn.commit()
+            conn.close()
+            st.success("✅ Admin rights activated!")
+        else:
+            st.error("❌ Invalid secret code.")
+
+# Show this only to logged in users (but not yet admin)
+if st.session_state.get("logged_in") and not is_admin(st.session_state["username"]):
+    with st.expander("🛠 Setup Admin Access"):
+        setup_admin()
+
+
 # --------------------- Main UI -------------------------------
 if not st.session_state.logged_in:
     login.show_login_signup_page()

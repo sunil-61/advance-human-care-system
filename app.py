@@ -105,7 +105,13 @@ else:
     # Menu Options
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
-        menu_option = st.radio("Select an Option:", ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"], index=0)
+        menu_items = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
+        if st.session_state.username == "sunil":  # tu admin hai
+            menu_items.append("View Complaints")
+
+        menu_option = st.radio("Select an Option:", menu_items, index=0)
+
+
 
         if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
@@ -171,6 +177,21 @@ else:
             - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
+        elif menu_option == "View Complaints" and st.session_state.username == "gotohell":
+            st.subheader("📬 All User Complaints")
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("SELECT username, complaint FROM complaints ORDER BY ROWID DESC")
+            complaints = c.fetchall()
+            conn.close()
+
+            if complaints:
+                for uname, complaint in complaints:
+                    with st.expander(f"👤 {uname}"):
+                        st.write(complaint)
+            else:
+                st.info("No complaints submitted yet.")
+
 
     # --------------------- Bottom Complaint Box (only after login) ---------------------
     st.markdown("---")

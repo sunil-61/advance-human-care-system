@@ -79,7 +79,6 @@ def show_login_signup_page():
 
         if st.button("Login"):
             if validate_user(username, password):
-                st.success(f"Welcome {username}!")
                 st.session_state.logged_in = True
                 st.session_state.username = username
                 st.experimental_rerun()

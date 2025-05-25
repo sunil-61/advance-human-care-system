@@ -83,7 +83,6 @@ def is_admin(username):
     conn.close()
     return result and result[0] == 1
 
-
 # ---------------------- UI Logic ----------------------
 
 def show_login_signup_page():

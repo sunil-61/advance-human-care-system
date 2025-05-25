@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import login
 import sqlite3
+import datetime
 import os
 from login import create_users_table, ensure_default_admin 
 from config import DB_PATH
@@ -40,6 +41,15 @@ def get_user_data(username):
     data = c.fetchone()
     conn.close()
     return data
+
+def submit_complaint(username, complaint_text):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("INSERT INTO complaints (username, complaint, timestamp) VALUES (?, ?, ?)",
+              (username, complaint_text, timestamp))
+    conn.commit()
+    conn.close()
 
 def update_user_profile(old_username, new_username, mobile, email):
     if login.user_exists(new_username) and old_username != new_username:
@@ -106,12 +116,17 @@ else:
             st.session_state.username = ""
             st.rerun()
     with col3:
-        service_selected = st.selectbox("📌 Services", ["Select Service", "Diabetes Prediction", "Stress Monitor", "AI Habit Tracker"])
+        options = ["Select Service", "Diabetes Prediction", "Stress Monitor", "AI Habit Tracker"]
+        if is_admin(st.session_state.username):
+            options.append("Admin Panel")
+
+        service_selected = st.selectbox("📌 Services", options)
         if service_selected != "Select Service":
             st.session_state.selected_service = service_selected
             st.session_state.show_menu = False
         else:
             st.session_state.selected_service = None
+
 
     # Service Loaders
     services = {
@@ -125,6 +140,12 @@ else:
             services["Diabetes Prediction"](model, st.session_state.username)
         else:
             services[st.session_state.selected_service](st.session_state.username)
+
+    # If admin selected "Admin Panel", show complaints
+    if st.session_state.selected_service == "Admin Panel" and is_admin(st.session_state["username"]):
+        from admin import view_complaints
+        view_complaints()
+
 
     # Menu Options
     if st.session_state.show_menu and st.session_state.selected_service is None:
@@ -224,10 +245,20 @@ else:
         complaint_text = st.text_area("Type your complaint here...")
         send = st.form_submit_button("Send")
         if send and complaint_text.strip():
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
-            c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
+            c.execute("INSERT INTO complaints (username, complaint, timestamp) VALUES (?, ?, ?)",
+                      (st.session_state.username, complaint_text.strip(), timestamp))
             conn.commit()
             conn.close()
             st.success("✅ Complaint sent successfully!")
             st.rerun()
+
+
+
+
+
+
+
+

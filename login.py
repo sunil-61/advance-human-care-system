@@ -37,6 +37,18 @@ def create_users_table():
     conn.commit()
     conn.close()
 
+def ensure_default_admin():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username = 'admin'")
+    if not c.fetchone():
+        hashed_pwd = hash_password("27591684")  # 👈 Default password
+        c.execute("INSERT INTO users (username, password, mobile, email, is_admin) VALUES (?, ?, ?, ?, ?)",
+                  ("admin", hashed_pwd, "8690625461", "technical.programmer.sunil@gmail.com", 1))
+        conn.commit()
+    conn.close()
+
+
 def user_exists(username):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()

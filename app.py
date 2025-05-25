@@ -4,6 +4,7 @@ import pickle
 import login
 import sqlite3
 import os
+from login import create_users_table, ensure_default_admin 
 from config import DB_PATH
 from storage import create_prediction_table, save_prediction, get_user_predictions, delete_prediction
 import services.diabetes as diabetes

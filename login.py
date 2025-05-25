@@ -101,6 +101,7 @@ def show_login_signup_page():
         with col8:
             if st.button("Create New Account"):
                 st.session_state.mode = 'signup'
+                st.rerun()
 
     # ------------------- Sign Up Mode ------------------- #
     elif st.session_state.mode == 'signup':
@@ -125,8 +126,10 @@ def show_login_signup_page():
                 add_user(new_user, new_pass, mobile, email)
                 st.success("Account created successfully! You can now log in.")
                 st.session_state.mode = 'login'
+                st.rerun()
 
         st.write("")
         if st.button("Back to Login"):
             st.session_state.mode = 'login'
+            st.rerun()
 

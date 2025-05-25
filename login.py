@@ -76,35 +76,37 @@ def show_login_signup_page():
     else:
         st.warning("Image not found: loginphoto.jpeg")
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type='password')
-
+    # Initialize mode
     if 'mode' not in st.session_state:
         st.session_state.mode = 'login'
 
-    st.write("")  # spacing
+    # ------------------- Login Form ------------------- #
+    if st.session_state.mode == 'login':
+        username = st.text_input("Username")
+        password = st.text_input("Password", type='password')
 
-    # Centered Login Button
-    col1, col2, col3 = st.columns([5.6, 2, 5])
-    with col2:
-        if st.button("Login", key="login_action"):
-            if validate_user(username, password):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.success("Login successful!")
-                st.rerun()
-            else:
-                st.error("Invalid username or password.")
+        st.write("")  # spacing
 
+        # Centered Login Button
+        col1, col2, col3 = st.columns([5.6, 2, 5])
+        with col2:
+            if st.button("Login", key="login_action"):
+                if validate_user(username, password):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.success("Login successful!")
+                    st.rerun()
+                else:
+                    st.markdown("<p style='color: orange;'>⚠️ Invalid username or password.</p>", unsafe_allow_html=True)
 
-    # Centered Sign Up button
-    col7, col8, col9 = st.columns([5.5, 2, 5])
-    with col8:
-        if st.button("Sign Up", key="signup_action"):
-            st.session_state.mode = 'signup'
+        # Centered Sign Up button
+        col7, col8, col9 = st.columns([5.5, 2, 5])
+        with col8:
+            if st.button("Sign Up", key="signup_action"):
+                st.session_state.mode = 'signup'
 
-    # Signup form
-    if st.session_state.mode == 'signup':
+    # ------------------- Sign Up Form ------------------- #
+    elif st.session_state.mode == 'signup':
         st.subheader("Create New Account")
         new_user = st.text_input("New Username")
         new_pass = st.text_input("New Password", type='password')
@@ -124,5 +126,11 @@ def show_login_signup_page():
                 st.warning("Enter a valid email address.")
             else:
                 add_user(new_user, new_pass, mobile, email)
-                st.success("Account created successfully!")
+                st.success("Account created successfully! You can now log in.")
                 st.session_state.mode = 'login'
+
+        # Back to Login
+        st.write("")
+        if st.button("Back to Login"):
+            st.session_state.mode = 'login'
+

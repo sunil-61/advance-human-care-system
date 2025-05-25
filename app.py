@@ -17,7 +17,7 @@ from login import is_admin
 # Ensure tables exist
 create_users_table()    
 ensure_default_admin() 
-create_complaint_table()
+create_complaints_table()
 create_prediction_table()
 login.create_users_table()
 

@@ -5,7 +5,7 @@ from config import DB_PATH
 DB_PATH = 'users.db'
 
 
-def create_predictions_table():
+def create_prediction_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''

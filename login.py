@@ -24,17 +24,16 @@ def valid_mobile(mobile):
 
 # ---------------------- Database Operations ----------------------
 
-def create_user_table():
+def create_users_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            password TEXT,
-            mobile TEXT,
-            email TEXT
-        )
-    ''')
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        username TEXT PRIMARY KEY,
+        password TEXT,
+        mobile TEXT,
+        email TEXT,
+        is_admin INTEGER DEFAULT 0
+    )''')
     conn.commit()
     conn.close()
 
@@ -47,11 +46,11 @@ def user_exists(username):
     return result is not None
 
 def add_user(username, password, mobile, email):
+    hashed_pwd = hash_password(password)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    hashed = hash_password(password)
-    c.execute("INSERT INTO users (username, password, mobile, email) VALUES (?, ?, ?, ?)",
-              (username, hashed, mobile, email))
+    c.execute("INSERT INTO users (username, password, mobile, email, is_admin) VALUES (?, ?, ?, ?, 0)", 
+              (username, hashed_pwd, mobile, email))
     conn.commit()
     conn.close()
 
@@ -64,12 +63,21 @@ def validate_user(username, password):
     conn.close()
     return result
 
+def is_admin(username):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT is_admin FROM users WHERE username = ?", (username,))
+    result = c.fetchone()
+    conn.close()
+    return result and result[0] == 1
+
+
 # ---------------------- UI Logic ----------------------
 
 def show_login_signup_page():
     st.markdown("<h2 style='text-align: center;'>🏥 Welcome to the Advance Health Care System</h2>", unsafe_allow_html=True)
 
-    create_user_table()
+    create_users_table()
 
     if os.path.exists("loginphoto.jpeg"):
         st.image("loginphoto.jpeg", use_container_width=True)

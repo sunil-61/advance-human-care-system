@@ -10,11 +10,12 @@ import services.diabetes as diabetes
 import services.stress as stress
 import services.habit as habit
 from storage import create_complaint_table
+from login import is_admin
 
 # Ensure tables exist
 create_complaint_table()
 create_prediction_table()
-login.create_user_table()
+login.create_users_table()
 
 # Load diabetes model
 MODEL_PATH = "diabetes_model.pkl"
@@ -66,7 +67,6 @@ def change_password(username, old_pass, new_pass):
     return True, "Password changed successfully!"
 
 # --------------------- Main UI -------------------------------
-# --------------------- Main UI -------------------------------
 if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
@@ -105,13 +105,12 @@ else:
     # Menu Options
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
-        menu_items = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
-        if st.session_state.username == "sunil":  # tu admin hai
-            menu_items.append("View Complaints")
-
-        menu_option = st.radio("Select an Option:", menu_items, index=0)
-
-
+        
+        menu_list = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
+        if is_admin(st.session_state.username):
+            menu_list.insert(0, "View Complaints")  # Only admin can see this option
+        
+        menu_option = st.radio("Select an Option:", menu_list, index=0)
 
         if menu_option == "View Profile":
             st.subheader("👤 View / Update Profile")
@@ -177,6 +176,7 @@ else:
             - **Email**: technical.programmer.sunil@gmail.com  
             - **Phone**: +91 869-062-5461
             """)
+
         elif menu_option == "View Complaints" and st.session_state.username == "gotohell":
             st.subheader("📬 All User Complaints")
             conn = sqlite3.connect(DB_PATH)
@@ -192,8 +192,7 @@ else:
             else:
                 st.info("No complaints submitted yet.")
 
-
-    # --------------------- Bottom Complaint Box (only after login) ---------------------
+    # --------------------- Bottom Complaint Box ---------------------
     st.markdown("---")
     st.subheader("📩 Complaint Box")
     st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
@@ -207,6 +206,4 @@ else:
             conn.commit()
             conn.close()
             st.success("✅ Complaint sent successfully!")
-            st.experimental_rerun()
-
-
+            st.rerun()

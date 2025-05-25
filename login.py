@@ -76,18 +76,16 @@ def show_login_signup_page():
     else:
         st.warning("Image not found: loginphoto.jpeg")
 
-    # Initialize mode
     if 'mode' not in st.session_state:
         st.session_state.mode = 'login'
 
-    # ------------------- Login Form ------------------- #
+    # ------------------- Login Mode ------------------- #
     if st.session_state.mode == 'login':
         username = st.text_input("Username")
         password = st.text_input("Password", type='password')
 
         st.write("")  # spacing
 
-        # Centered Login Button
         col1, col2, col3 = st.columns([5.6, 2, 5])
         with col2:
             if st.button("Login", key="login_action"):
@@ -99,13 +97,12 @@ def show_login_signup_page():
                 else:
                     st.markdown("<p style='color: orange;'>⚠️ Invalid username or password.</p>", unsafe_allow_html=True)
 
-        # Centered Sign Up button
         col7, col8, col9 = st.columns([5.5, 2, 5])
         with col8:
-            if st.button("Sign Up", key="signup_action"):
+            if st.button("Create New Account"):
                 st.session_state.mode = 'signup'
 
-    # ------------------- Sign Up Form ------------------- #
+    # ------------------- Sign Up Mode ------------------- #
     elif st.session_state.mode == 'signup':
         st.subheader("Create New Account")
         new_user = st.text_input("New Username")
@@ -129,7 +126,6 @@ def show_login_signup_page():
                 st.success("Account created successfully! You can now log in.")
                 st.session_state.mode = 'login'
 
-        # Back to Login
         st.write("")
         if st.button("Back to Login"):
             st.session_state.mode = 'login'

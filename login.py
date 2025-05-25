@@ -96,10 +96,6 @@ def show_login_signup_page():
             else:
                 st.error("Invalid username or password.")
 
-    # Centered 'Don't have an account?'
-    col4, col5, col6 = st.columns([4.5, 2, 5])
-    with col5:
-        st.markdown("<p style='text-align: center;'>Don't have an account?</p>", unsafe_allow_html=True)
 
     # Centered Sign Up button
     col7, col8, col9 = st.columns([5.5, 2, 5])

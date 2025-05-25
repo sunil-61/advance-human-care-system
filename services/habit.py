@@ -15,7 +15,7 @@ def show_habit_monitor(model=None, username=None):
     sleep_hours = st.slider("How many hours did you sleep?", 0, 12, 7)
     study_hours = st.slider("How many hours did you study/work productively?", 0, 12, 3)
 
-    # ---- ANALYSIS & SUGGESTIONS ----
+    # ---- AI SUGGESTIONS ----
     st.subheader("AI Suggestions")
 
     def generate_suggestion(water, screen, sleep, study):
@@ -61,21 +61,28 @@ def show_habit_monitor(model=None, username=None):
     st.success(f"Today's Habit Score: **{int(score)} / 100**")
 
     # ---- SAVE TO STORAGE ----
-    save_prediction(
-        username=username,
-        service="Habit Tracker",
-        input_data={
-            "water_intake": water_intake,
-            "screen_time": screen_time,
-            "sleep_hours": sleep_hours,
-            "study_hours": study_hours
-        },
-        prediction_result={
-            "score": int(score),
-            "suggestions": suggestions
-        },
-        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+    if username is None:
+        st.error("User not logged in. Cannot save habit data.")
+        return
+
+    try:
+        save_prediction(
+            username=username,
+            service="Habit Tracker",
+            input_data={
+                "water_intake": water_intake,
+                "screen_time": screen_time,
+                "sleep_hours": sleep_hours,
+                "study_hours": study_hours
+            },
+            prediction_result={
+                "score": int(score),
+                "suggestions": suggestions
+            },
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+    except Exception as e:
+        st.error(f"Failed to save data: {e}")
 
     st.markdown("---")
     st.caption(f"Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

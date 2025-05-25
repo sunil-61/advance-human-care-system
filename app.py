@@ -5,35 +5,40 @@ import login
 import sqlite3
 import datetime
 import os
-from login import create_users_table, ensure_default_admin 
+
+from login import create_users_table, ensure_default_admin, is_admin
 from config import DB_PATH
-from storage import create_prediction_table, save_prediction, get_user_predictions, delete_prediction
+from storage import (
+    create_prediction_table,
+    save_prediction,
+    get_user_predictions,
+    delete_prediction,
+    create_complaints_table,
+    get_all_complaints
+)
 import services.diabetes as diabetes
 import services.stress as stress
 import services.habit as habit
-from storage import create_complaints_table
-from login import is_admin
 
-# Ensure tables exist
-create_users_table()    
-ensure_default_admin() 
+# ------------------ Initial Setup ------------------
+create_users_table()
+ensure_default_admin()
 create_complaints_table()
 create_prediction_table()
-login.create_users_table()
 
-# Load diabetes model
+# Load model
 MODEL_PATH = "diabetes_model.pkl"
 model = pickle.load(open(MODEL_PATH, "rb"))
 
-# Streamlit settings
+# Streamlit config
 st.set_page_config(layout="wide")
 
-# ---------------- Session State Initialization ----------------
+# Session state setup
 for key in ["logged_in", "username", "show_menu", "selected_service"]:
     if key not in st.session_state:
         st.session_state[key] = False if key == "logged_in" else "" if key == "username" else False if key == "show_menu" else None
 
-# ------------------- Helper Functions -------------------------
+# ------------------ Helper Functions ------------------
 def get_user_data(username):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -41,15 +46,6 @@ def get_user_data(username):
     data = c.fetchone()
     conn.close()
     return data
-
-def submit_complaint(username, complaint_text):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO complaints (username, complaint, timestamp) VALUES (?, ?, ?)",
-              (username, complaint_text, timestamp))
-    conn.commit()
-    conn.close()
 
 def update_user_profile(old_username, new_username, mobile, email):
     if login.user_exists(new_username) and old_username != new_username:
@@ -79,13 +75,13 @@ def change_password(username, old_pass, new_pass):
     conn.close()
     return True, "Password changed successfully!"
 
-# Secret admin setup (only runs once)
+# ------------------ Admin Setup Option ------------------
 def setup_admin():
     st.markdown("## 🔐 Admin Setup")
     secret_code = st.text_input("Enter Secret Code to Become Admin", type="password")
     if st.button("Activate Admin Rights"):
-        if secret_code == "27591684":  # Same as your password or set new one
-            conn = sqlite3.connect("users.db")
+        if secret_code == "27591684":
+            conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             c.execute("UPDATE users SET is_admin = 1 WHERE username = ?", (st.session_state.username,))
             conn.commit()
@@ -94,17 +90,15 @@ def setup_admin():
         else:
             st.error("❌ Invalid secret code.")
 
-# Show this only to logged in users (but not yet admin)
 if st.session_state.get("logged_in") and not is_admin(st.session_state["username"]):
     with st.expander("🛠 Setup Admin Access"):
         setup_admin()
 
-
-# --------------------- Main UI -------------------------------
+# ------------------ Main App ------------------
 if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
-    # Top Menu
+    # Top Bar
     col1, col2, col3, col4 = st.columns([1, 1, 9, 9])
     with col1:
         if st.button("🏠", help="Open Menu"):
@@ -120,15 +114,11 @@ else:
         if is_admin(st.session_state.username):
             options.append("Admin Panel")
 
-        service_selected = st.selectbox("📌 Services", options)
-        if service_selected != "Select Service":
-            st.session_state.selected_service = service_selected
-            st.session_state.show_menu = False
-        else:
-            st.session_state.selected_service = None
+        selected = st.selectbox("📌 Services", options)
+        st.session_state.selected_service = selected if selected != "Select Service" else None
+        st.session_state.show_menu = False if selected != "Select Service" else st.session_state.show_menu
 
-
-    # Service Loaders
+    # Load selected service
     services = {
         "Diabetes Prediction": diabetes.show_diabetes_prediction,
         "Stress Monitor": stress.show_stress_monitor,
@@ -141,30 +131,33 @@ else:
         else:
             services[st.session_state.selected_service](st.session_state.username)
 
-    # If admin selected "Admin Panel", show complaints
+    # Admin Panel
     if st.session_state.selected_service == "Admin Panel" and is_admin(st.session_state["username"]):
-        from admin import view_complaints
-        view_complaints()
+        st.subheader("📬 All User Complaints")
+        complaints = get_all_complaints()
+        if complaints:
+            for uname, complaint, timestamp in complaints:
+                with st.expander(f"👤 {uname} - {timestamp}"):
+                    st.write(complaint)
+        else:
+            st.info("No complaints submitted yet.")
 
-
-    # Menu Options
+    # Menu Panel
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
-        
-        menu_list = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
+        menu = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
         if is_admin(st.session_state.username):
-            menu_list.insert(0, "View Complaints")  # Only admin can see this option
-        
-        menu_option = st.radio("Select an Option:", menu_list, index=0)
+            menu.insert(0, "View Complaints")
 
-        if menu_option == "View Profile":
+        choice = st.radio("Select an Option:", menu, index=0)
+
+        if choice == "View Profile":
             st.subheader("👤 View / Update Profile")
             user_data = get_user_data(st.session_state.username)
             new_username = st.text_input("Username", value=user_data[0])
             mobile = st.text_input("Mobile Number", value=user_data[1])
             email = st.text_input("Email ID", value=user_data[2])
 
-            # Profile photo upload
             profile_dir = "profile_photos"
             os.makedirs(profile_dir, exist_ok=True)
             photo_path = os.path.join(profile_dir, f"{st.session_state.username}.png")
@@ -182,7 +175,7 @@ else:
                 success, message = update_user_profile(st.session_state.username, new_username, mobile, email)
                 st.success(message) if success else st.error(message)
 
-        elif menu_option == "Change Password":
+        elif choice == "Change Password":
             st.subheader("🔒 Change Password")
             old_pass = st.text_input("Old Password", type='password')
             new_pass = st.text_input("New Password", type='password')
@@ -190,7 +183,7 @@ else:
                 success, message = change_password(st.session_state.username, old_pass, new_pass)
                 st.success(message) if success else st.error(message)
 
-        elif menu_option == "Prediction History":
+        elif choice == "Prediction History":
             st.subheader("📜 Prediction History")
             history = get_user_predictions(st.session_state.username)
             if history:
@@ -206,15 +199,15 @@ else:
             else:
                 st.info("No prediction history found.")
 
-        elif menu_option == "Help":
+        elif choice == "Help":
             st.info("""
             ### ❓ Help
             - Use the top menu to select a health service.
-            - Use 🏠 to view profile, change password, see history.
+            - Use 🏠 to view profile, change password, and see history.
             - Your data is securely stored and private.
             """)
 
-        elif menu_option == "Contact Us":
+        elif choice == "Contact Us":
             st.info("""
             ### 📞 Contact Us
             - **Developer**: Sunil Jat  
@@ -222,25 +215,21 @@ else:
             - **Phone**: +91 869-062-5461
             """)
 
-        elif menu_option == "View Complaints" and st.session_state.username == "gotohell":
+        elif choice == "View Complaints" and is_admin(st.session_state.username):
             st.subheader("📬 All User Complaints")
-            conn = sqlite3.connect(DB_PATH)
-            c = conn.cursor()
-            c.execute("SELECT username, complaint FROM complaints ORDER BY ROWID DESC")
-            complaints = c.fetchall()
-            conn.close()
-
+            complaints = get_all_complaints()
             if complaints:
-                for uname, complaint in complaints:
-                    with st.expander(f"👤 {uname}"):
+                for uname, complaint, timestamp in complaints:
+                    with st.expander(f"👤 {uname} - {timestamp}"):
                         st.write(complaint)
             else:
                 st.info("No complaints submitted yet.")
 
-    # --------------------- Bottom Complaint Box ---------------------
+    # ---------------- Complaint Box (Bottom) ----------------
     st.markdown("---")
     st.subheader("📩 Complaint Box")
     st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
+
     with st.form("complaint_form"):
         complaint_text = st.text_area("Type your complaint here...")
         send = st.form_submit_button("Send")
@@ -254,11 +243,4 @@ else:
             conn.close()
             st.success("✅ Complaint sent successfully!")
             st.rerun()
-
-
-
-
-
-
-
 

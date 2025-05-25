@@ -83,6 +83,15 @@ def is_admin(username):
     conn.close()
     return result and result[0] == 1
 
+def is_admin(username):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT is_admin FROM users WHERE username = ?", (username,))
+    result = c.fetchone()
+    conn.close()
+    return result and result[0] == 1
+
+
 # ---------------------- UI Logic ----------------------
 
 def show_login_signup_page():

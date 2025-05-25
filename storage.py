@@ -21,6 +21,15 @@ def create_prediction_table():
     conn.commit()
     conn.close()
 
+def get_all_complaints():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT username, complaint, timestamp FROM complaints ORDER BY timestamp DESC")
+    complaints = c.fetchall()
+    conn.close()
+    return complaints
+
+
 def create_complaints_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -62,6 +71,14 @@ def save_prediction(username, service, input_data, prediction_result, timestamp)
         )
     )
 
+    conn.commit()
+    conn.close()
+
+
+def save_complaint(username, complaint):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (username, complaint))
     conn.commit()
     conn.close()
 

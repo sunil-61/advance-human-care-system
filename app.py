@@ -70,7 +70,7 @@ if not st.session_state.logged_in:
     login.show_login_signup_page()
 else:
     # Top Menu
-    col1, col2, col3 = st.columns([1, 1, 9])
+    col1, col2, col3, col4 = st.columns([1, 1, 9, 9])
     with col1:
         if st.button("🏠", help="Open Menu"):
             st.session_state.show_menu = not st.session_state.show_menu
@@ -171,19 +171,19 @@ else:
             - **Phone**: +91 869-062-5461
             """)
 
-        # Complaint Box
-        st.markdown("---")
-        st.subheader("📩 Complaint Box")
-        st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
-        with st.form("complaint_form"):
-            complaint_text = st.text_area("Type your complaint here...")
-            send = st.form_submit_button("Send")
-            if send and complaint_text.strip():
-                conn = sqlite3.connect(DB_PATH)
-                c = conn.cursor()
-                c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
-                conn.commit()
-                conn.close()
-                st.success("✅ Complaint sent successfully!")
-                st.experimental_rerun()
+        # --------------------- Bottom Complaint Box ---------------------
+st.markdown("---")
+st.subheader("📩 Complaint Box")
+st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
+with st.form("complaint_form"):
+    complaint_text = st.text_area("Type your complaint here...")
+    send = st.form_submit_button("Send")
+    if send and complaint_text.strip():
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (st.session_state.username, complaint_text.strip()))
+        conn.commit()
+        conn.close()
+        st.success("✅ Complaint sent successfully!")
+        st.experimental_rerun()
 

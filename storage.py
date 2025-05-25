@@ -5,15 +5,17 @@ from config import DB_PATH
 DB_PATH = 'users.db'
 
 
-def create_prediction_table():
+def create_predictions_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
+            service TEXT,
             input_data TEXT,
             result TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp TEXT
         )
     ''')
     conn.commit()

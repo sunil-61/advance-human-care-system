@@ -7,7 +7,7 @@ def show_stress_monitor(model=None, username=None):
 
     st.markdown("### Please answer the following questions:")
     sleep_hours = st.slider("How many hours do you sleep daily?", 0, 18, 6)
-    work_hours = st.slider("How many hours do you work daily?", 0, 16, 8)
+    work_hours = st.slider("How many hours do you work daily?", 0, 20, 8)
     exercise = st.radio("Do you exercise regularly?", ["Yes", "No"])
     appetite = st.radio("How is your appetite?", ["Normal", "Low", "High"])
     mood = st.slider("On a scale of 1-10, how would you rate your current mood?", 1, 10, 5)

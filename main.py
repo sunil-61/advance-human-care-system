@@ -4,14 +4,14 @@ from sklearn.model_selection import train_test_split
 import pickle
 import sqlite3
 
-# 👇 Create complaints table in users.db if it doesn't exist
+# 👇 Create feedbacks table in users.db if it doesn't exist
 conn = sqlite3.connect("users.db")
 c = conn.cursor()
 c.execute('''
-    CREATE TABLE IF NOT EXISTS complaints (
+    CREATE TABLE IF NOT EXISTS feedbacks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT,
-        complaint TEXT,
+        feedback TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
 ''')
@@ -32,5 +32,5 @@ with open('diabetes_model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
 print("✅ Model trained and saved as diabetes_model.pkl")
-print("✅ complaints table created (if not already present)")
+print("✅ feedbacks table created (if not already present)")
 

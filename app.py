@@ -13,8 +13,8 @@ from storage import (
     save_prediction,
     get_user_predictions,
     delete_prediction,
-    create_complaints_table,
-    get_all_complaints
+    create_feedbacks_table,
+    get_all_feedbacks
 )
 import services.diabetes as diabetes
 import services.stress as stress
@@ -23,7 +23,7 @@ import services.habit as habit
 # ------------------ Initial Setup ------------------
 create_users_table()
 ensure_default_admin()
-create_complaints_table()
+create_feedbacks_table()
 create_prediction_table()
 
 # Load model
@@ -97,6 +97,7 @@ if st.session_state.get("logged_in") and not is_admin(st.session_state["username
 # ------------------ Main App ------------------
 if not st.session_state.logged_in:
     login.show_login_signup_page()
+
 else:
     # Top Bar
     col1, col2, col3, col4 = st.columns([1, 1, 9, 9])
@@ -133,21 +134,21 @@ else:
 
     # Admin Panel
     if st.session_state.selected_service == "Admin Panel" and is_admin(st.session_state["username"]):
-        st.subheader("📬 All User Complaints")
-        complaints = get_all_complaints()
-        if complaints:
-            for uname, complaint, timestamp in complaints:
+        st.subheader("📬 All User feedbacks")
+        feedbacks = get_all_feedbacks()
+        if feedbacks:
+            for uname, feedback, timestamp in feedbacks:
                 with st.expander(f"👤 {uname} - {timestamp}"):
-                    st.write(complaint)
+                    st.write(feedback)
         else:
-            st.info("No complaints submitted yet.")
+            st.info("No feedbacks submitted yet.")
 
     # Menu Panel
     if st.session_state.show_menu and st.session_state.selected_service is None:
         st.markdown("---")
         menu = ["View Profile", "Change Password", "Prediction History", "Help", "Contact Us"]
         if is_admin(st.session_state.username):
-            menu.insert(0, "View Complaints")
+            menu.insert(0, "View feedbacks")
 
         choice = st.radio("Select an Option:", menu, index=0)
 
@@ -215,32 +216,32 @@ else:
             - **Phone**: +91 869-062-5461
             """)
 
-        elif choice == "View Complaints" and is_admin(st.session_state.username):
-            st.subheader("📬 All User Complaints")
-            complaints = get_all_complaints()
-            if complaints:
-                for uname, complaint, timestamp in complaints:
+        elif choice == "View feedbacks" and is_admin(st.session_state.username):
+            st.subheader("📬 All User feedbacks")
+            feedbacks = get_all_feedbacks()
+            if feedbacks:
+                for uname, feedback, timestamp in feedbacks:
                     with st.expander(f"👤 {uname} - {timestamp}"):
-                        st.write(complaint)
+                        st.write(feedback)
             else:
-                st.info("No complaints submitted yet.")
+                st.info("No feedbacks submitted yet.")
 
-    # ---------------- Complaint Box (Bottom) ----------------
+    # ---------------- Feedback Box (Bottom) ----------------
     st.markdown("---")
-    st.subheader("📩 Complaint Box")
-    st.info("Note: This is a one-way complaint box. You cannot view submitted complaints.")
+    st.subheader("📩 Feedback Box")
+    st.info("Note: This is a one-way feedback box. You cannot view submitted feedbacks.")
 
-    with st.form("complaint_form"):
-        complaint_text = st.text_area("Type your complaint here...")
+    with st.form("feedback form"):
+        feedback_text = st.text_area("Type your feedback here...")
         send = st.form_submit_button("Send")
-        if send and complaint_text.strip():
+        if send and feedback_text.strip():
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
-            c.execute("INSERT INTO complaints (username, complaint, timestamp) VALUES (?, ?, ?)",
-                      (st.session_state.username, complaint_text.strip(), timestamp))
+            c.execute("INSERT INTO feedbacks (username, feedback, timestamp) VALUES (?, ?, ?)",
+                      (st.session_state.username, feedback_text.strip(), timestamp))
             conn.commit()
             conn.close()
-            st.success("✅ Complaint sent successfully!")
+            st.success("✅ Feedback sent successfully!")
             st.rerun()
 

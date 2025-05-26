@@ -1,12 +1,12 @@
 import streamlit as st
 import sqlite3
 
-def view_complaints():
-    st.title("📋 All Complaints")
+def view_feedbacks():
+    st.title("📋 All feedbacks")
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT username, complaint, timestamp FROM complaints ORDER BY timestamp DESC")
+    c.execute("SELECT username, feedback, timestamp FROM feedbacks ORDER BY timestamp DESC")
     rows = c.fetchall()
     conn.close()
 
@@ -16,6 +16,6 @@ def view_complaints():
             st.code(comp)
             st.markdown("---")
     else:
-        st.info("No complaints submitted yet.")
+        st.info("No feedbacks submitted yet.")
 
 

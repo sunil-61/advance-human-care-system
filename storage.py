@@ -21,22 +21,22 @@ def create_prediction_table():
     conn.commit()
     conn.close()
 
-def get_all_complaints():
+def get_all_feedbacks():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT username, complaint, timestamp FROM complaints ORDER BY timestamp DESC")
-    complaints = c.fetchall()
+    c.execute("SELECT username, feedback, timestamp FROM feedback ORDER BY timestamp DESC")
+    feedbacks = c.fetchall()
     conn.close()
-    return complaints
+    return feedbacks
 
 
-def create_complaints_table():
+def create_feedbacks_table():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''
-        CREATE TABLE IF NOT EXISTS complaints (
+        CREATE TABLE IF NOT EXISTS feedbacks (
             username TEXT,
-            complaint TEXT,
+            feedback TEXT,
             timestamp TEXT
         )
     ''')
@@ -73,12 +73,13 @@ def save_prediction(username, service, input_data, prediction_result, timestamp)
 
     conn.commit()
     conn.close()
+    
 
 
-def save_complaint(username, complaint):
+def save_feedback(username, feedback):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("INSERT INTO complaints (username, complaint) VALUES (?, ?)", (username, complaint))
+    c.execute("INSERT INTO feedbacks (username, feedback) VALUES (?, ?)", (username, feedback))
     conn.commit()
     conn.close()
 
@@ -86,7 +87,7 @@ def save_complaint(username, complaint):
 def get_user_predictions(username):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('SELECT input_data, result, timestamp FROM predictions WHERE username = ? ORDER BY timestamp DESC', 
+    c.execute('SELECT username, service, input_data, prediction_result, timestamp FROM save_predictions WHERE username = ? ORDER BY timestamp DESC', 
               (username,))
     results = c.fetchall()
     conn.close()

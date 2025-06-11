@@ -99,4 +99,31 @@ def show_diabetes_prediction(model = None, username = None):
             st.success("Normal Risk")
         else:
             st.warning("High Risk")
-   
+        
+        if username:
+            input_data = {
+                "age": agee,
+                "gender": gender,
+                "weight": weight,
+                "height": height,
+                "BMI": round(bodymassindex, 2),
+                "family": family,
+                "physical": physical,
+                "systolic": systolic,
+                "diastolic": diastolic,
+                "frequent_urination": frequent_urination 
+                }
+            prediction_result = {
+                "score": score,
+                "result": "Low Risk" if score <= 4 else "Normal Risk" if score <= 7 else "High Risk",
+                "suggestions": suggestions 
+                }
+
+            save_prediction(
+                username=username,
+                service="Diabetes Prediction",
+                input_data=input_data,
+                prediction_result=prediction_result,
+                timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                ) 
+            st.info("Prediction saved successfully ✅")

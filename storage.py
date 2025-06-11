@@ -21,10 +21,11 @@ def create_prediction_table():
     conn.commit()
     conn.close()
 
+
 def get_all_feedbacks():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT username, feedback, timestamp FROM feedback ORDER BY timestamp DESC")
+    c.execute("SELECT username, feedback, timestamp FROM feedbacks ORDER BY timestamp DESC")
     feedbacks = c.fetchall()
     conn.close()
     return feedbacks
@@ -83,20 +84,20 @@ def save_feedback(username, feedback):
     conn.commit()
     conn.close()
 
-
 def get_user_predictions(username):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('SELECT username, service, input_data, prediction_result, timestamp FROM save_predictions WHERE username = ? ORDER BY timestamp DESC', 
+    c.execute('SELECT id, service, timestamp, input_data, result FROM predictions WHERE username = ? ORDER BY timestamp DESC',
               (username,))
     results = c.fetchall()
     conn.close()
     return results
 
-def delete_prediction(username, timestamp):
+
+def delete_prediction(prediction_id):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('DELETE FROM predictions WHERE username = ? AND timestamp = ?', (username, timestamp))
+    c.execute('DELETE FROM predictions WHERE id = ?', (prediction_id,))
     conn.commit()
     conn.close()
 

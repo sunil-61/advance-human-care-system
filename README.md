@@ -13,8 +13,6 @@ This is a **Machine Learning-powered web app** built with **Streamlit** that pre
 ## 📊 Features
 
 - Predicts diabetes based on:
-  - Pregnancies
-  - Glucose
   - Blood Pressure
   - Skin Thickness
   - Insulin

@@ -1,6 +1,6 @@
-# 💉 Diabetes Prediction Web App
+# 💉 Advance Human Care Prediction Web App
 
-This is a **Machine Learning-powered web app** built with **Streamlit** that predicts whether a person is likely to have diabetes based on various health parameters.
+This is a **python-programming-based web app** built with **Streamlit** that predicts whether a person is likely to have diabetes, stress, habit tracker based on various health parameters.
 
 ---
 
@@ -13,15 +13,28 @@ This is a **Machine Learning-powered web app** built with **Streamlit** that pre
 ## 📊 Features
 
 - Predicts diabetes based on:
-  - Blood Pressure
-  - Skin Thickness
-  - Insulin
-  - BMI
-  - Diabetes Pedigree Function
   - Age
+  - Gender
+  - Weight(in kg)
+  - Height(in cm)
+  - Family History of Diabetes
+  - Physical Acitity
+  - Upper/Lower BP Count
+  - Frequent Urination
+- Predict stress moniter based on:
+  - Sleep Daily(in hours)
+  - Work Daily(in hours)
+  - Exercise Regularly
+  - Appetite
+  - Rate Your Current Mood(in 1 to 10 score)
+- Predicts AI habit tracker based on:
+  - Daily Drink Water(in litar)
+  - Use Mobile/Laptop(in hours)
+  - Sleep Daily(in hours)
+  - Study/Work Daily(in hours)
 - Built using:
   - `streamlit`
-  - `scikit-learn`
+  - `sqlite3`
   - `pandas`
   - `numpy`
 
